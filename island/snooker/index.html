@@ -1,0 +1,1597 @@
+﻿<!DOCTYPE html>
+<!-- saved from url=(0023)http://localhost:54453/ -->
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8"> 
+		 
+		<title>Html5 Snooker Club</title> 
+        <link href="./Html5SnookerClub_files/css" rel="stylesheet" type="text/css">
+		<script type="text/javascript" src="./Html5SnookerClub_files/jquery-1.5.1.min.js"></script> 
+        <script type="text/javascript" src="./Html5SnookerClub_files/Vector2D.js"></script> 
+        <script type="text/javascript" src="./Html5SnookerClub_files/CanvasPrototype.js"></script> 
+        <script type="text/javascript" src="./Html5SnookerClub_files/Queue.js"></script> 
+		<link href="./Html5SnookerClub_files/Site.css" rel="stylesheet" type="text/css">
+		<style> 
+		    body
+		    {
+		        background-color: #102010;
+		        font-family: Arial;
+		        font-size: 14px;
+		        margin: 0;
+		    }
+
+		    span
+		    {
+		        color: White;
+		        position: absolute;
+		    }
+
+		    .gameEvents
+		    {
+		        position: absolute;
+		        color: White;
+		        max-height: 200px;
+		        width: 800px;
+		        overflow: auto;
+		        font-family: Arial, Courier New, Consolas;
+		        font-size: 0.75em;
+		    }
+
+		    .player1Image { left: 45px; top: 30px; width: 133px; height: 70px; border: 2px solid transparent; background-image: url('Content/Images/Player1.png'); background-size: 100%; opacity: 0.25;}
+		    .player2Image { left: 45px; top: 153px; width: 133px; height: 70px; border: 2px solid transparent; background-image: url('Content/Images/Player2.png'); background-size: 100%; opacity: 0.25;}
+
+		    .player1BallOn { position: absolute; left: 145px; top: 130px; width: 133px; height: 70px; border: 2px solid transparent;}
+		    .player2BallOn { position: absolute; left: 145px; top: 253px; width: 133px; height: 70px; border: 2px solid transparent;}
+		    		    
+		    .player1Name { left: 52px; top: 116px; color: #ffffff; font-family: Arial Black; opacity: 1.0;}
+		    .player2Name { left: 52px; top: 238px; color: #ffffff; font-family: Arial Black; opacity: 1.0;}
+		    .player1Score { left: 165px; top: 116px; font-family: Arial Black; text-align: center;}
+		    .player2Score { left: 165px; top: 238px; font-family: Arial Black; text-align: center;}
+		    
+		    .log { left: 900px; top: 0px; font-family: Courier New, Consolas; font-size: 1.0em; display: none; }
+		    .gameEvents { left: 40px; top: 420px; display: none; }
+		    
+		    #strengthBar-ie { position: absolute; margin:375px 0 0 139px; width: 150px; color: lime; background-color: orange; z-index: 5;}
+		    #strengthBar { position: absolute; margin:375px 0 0 139px; width: 150px; color: lime; background-color: orange; z-index: 5; display: none;}
+		    
+			#snookerRoom { position: absolute; margin:100px 0 0 100px; padding:0; width: 874px; height: 397px; background-image: url('Content/Images/score_wallpaper_green.JPG'); z-index: 0;}
+			#bottomCanvas { position: absolute; margin:140px 0 0 351px; padding:0; width: 577px; height: 309px; border: 2px; z-index: 1;}
+			#topCanvas { position: absolute; margin:000px 0 0 000px; z-index: 3;}
+		
+			#cue { position:absolute; }
+			#roofFan { position:absolute; left: 600px; top: -100px; width: 500px; height: 500px; border: 2px solid transparent; background-image: url('Content/Images/roofFan.png'); background-size: 100%; opacity: 0.3; z-index: 2;}
+		</style> 
+        
+        </head><body><div id="snookerRoom" class="snookerRoom">
+            <span id="log" class="log">playingTeamID: 1<br>ball on points: 1<br>redCount: 15<br>strokenBallsCount: 1<br>fallenRedCount: 2<br>wonPoints: 0<br>lostPoints: 0<br>someInTable: true<br>pottedBalls: 0<br>Team 1 Points: 4<br>Team 2 Points: 4</span>
+            <span id="player1Name" class="player1Name" style="color: rgb(128, 128, 128); ">PLAYER 1</span>
+            <span id="player2Name" class="player2Name" style="color: rgb(255, 255, 255); ">PLAYER 2</span>
+            <span id="player1Score" class="player1Score">4</span>
+            <span id="player2Score" class="player2Score">4</span>
+            <span id="player1Image" class="player1Image" style="opacity: 0.25; ">&nbsp;</span>
+            <span id="player2Image" class="player2Image" style="opacity: 1; ">&nbsp;</span>
+            <div id="gameEvents" class="gameEvents">===GAME EVENTS===<br>Begin shot: Player 1<br>Potted balls count: 2<br>Foul 4 points :  Expected 1, but hit 5<br>Foul 4 points :  causing the cue ball to miss all object balls<br>Foul 4 points : 5 was potted, while 1 was expected<br>ball.Points: 5<br>teams[playingTeamID - 1].BallOn.Points: 1<br>fallenRedCount: 1<br>redCount: 15<br> Lost 4 points.<br> wonPoints: 0, lostPoints: 4<br>End shot: Player 1<br>Begin shot: Player 2<br>Potted balls count: 2<br>Foul 4 points :  Expected 1, but hit 2<br>Foul 4 points :  causing the cue ball to miss all object balls<br>Foul 4 points : 2 was potted, while 1 was expected<br>ball.Points: 2<br>teams[playingTeamID - 1].BallOn.Points: 1<br>fallenRedCount: 2<br>redCount: 15<br> Lost 4 points.<br> wonPoints: 0, lostPoints: 4<br>End shot: Player 2<br>Begin shot: Player 1<br>Potted balls count: 0<br> wonPoints: 0, lostPoints: 0<br>End shot: Player 1</div>
+        </div>
+		<canvas id="bottomCanvas" class="bottomCanvas" width="577" height="309"> 
+		</canvas> 
+		<canvas id="topCanvas" class="topCanvas" height="597" width="1074"></canvas>
+		
+        <div id="strengthBar-ie">
+            <img id="strengthBar-ie_back" src="./Html5SnookerClub_files/meter-ie_back.png" style="position: absolute; top: 0;">
+            <img id="strengthBar-ie_front" src="./Html5SnookerClub_files/meter-ie_front.png" style="position: absolute; top: 0px; width: 70px; height: 14px; ">
+        </div>
+        <meter id="strengthBar" value="105" min="0" max="100" style="display: none; "></meter><br>
+        <div id="roofFan" style="-webkit-transform: rotate(0deg); ">&nbsp;</div>
+        <canvas id="player1BallOn" class="player1BallOn"> 
+		</canvas>
+        <canvas id="player2BallOn" class="player2BallOn"> 
+		</canvas>
+        <h1>&nbsp;<br>&nbsp;<br></h1>
+
+        <audio id="Fall" src="Content/Sounds/Fall.wav" preload="true">
+            Your browser does not support the audio element.   
+        </audio>
+        <audio id="Hit01" src="Content/Sounds/Hit01.wav" preload="true">
+            Your browser does not support the audio element.   
+        </audio>
+        <audio id="Hit02" src="Content/Sounds/Hit02.wav" preload="true">
+            Your browser does not support the audio element.   
+        </audio>
+        <audio id="Hit03" src="Content/Sounds/Hit03.wav" preload="true">
+            Your browser does not support the audio element.   
+        </audio>
+        <audio id="Hit04" src="Content/Sounds/Hit04.wav" preload="true">
+            Your browser does not support the audio element.   
+        </audio>
+        <audio id="Hit05" src="Content/Sounds/Hit05.wav" preload="true">
+            Your browser does not support the audio element.   
+        </audio>
+        <audio id="Hit06" src="Content/Sounds/Hit06.wav" preload="true">
+            Your browser does not support the audio element.   
+        </audio>
+        <audio id="Shot" src="Content/Sounds/shot01.wav" preload="true">
+            Your browser does not support the audio element.   
+        </audio>
+
+        <audio id="Fall_ie" src="Content/Sounds/Fall.mp3" preload="true">
+            Your browser does not support the audio element.   
+        </audio>
+        <audio id="Hit01_ie" src="Content/Sounds/Hit01.mp3" preload="true">
+            Your browser does not support the audio element.   
+        </audio>
+        <audio id="Hit02_ie" src="Content/Sounds/Hit02.mp3" preload="true">
+            Your browser does not support the audio element.   
+        </audio>
+        <audio id="Hit03_ie" src="Content/Sounds/Hit03.mp3" preload="true">
+            Your browser does not support the audio element.   
+        </audio>
+        <audio id="Hit04_ie" src="Content/Sounds/Hit04.mp3" preload="true">
+            Your browser does not support the audio element.   
+        </audio>
+        <audio id="Hit05_ie" src="Content/Sounds/Hit05.mp3" preload="true">
+            Your browser does not support the audio element.   
+        </audio>
+        <audio id="Hit06_ie" src="Content/Sounds/Hit06.mp3" preload="true">
+            Your browser does not support the audio element.   
+        </audio>
+        <audio id="Shot_ie" src="Content/Sounds/shot01.mp3" preload="true">
+            Your browser does not support the audio element.   
+        </audio>
+
+		
+		<script type="text/javascript">
+		    var bottomCanvas = document.getElementById('bottomCanvas');
+		    var topCanvas = document.getElementById('topCanvas');
+
+		    var playingTeamID = 1;
+		    var awaitingTeamID = 2;
+
+		    var renderStep = 0;
+
+		    var tracingQueue = new Queue();
+
+		    var teams = [];
+		    teams[0] = {};
+		    teams[0].Points = 0;
+		    teams[0].JustSwapped = false;
+		    teams[0].FoulList = [0];
+
+		    teams[1] = {};
+		    teams[1].Points = 0;
+		    teams[1].JustSwapped = false;
+		    teams[1].FoulList = [0];
+
+		    var fallenBallsProcessed = true;
+		    var isReady = true;
+		    var strokenBalls = [];
+		    var pottedBalls = [];
+
+		    var lastSpeedSum = 0;
+		    var started = false;
+		    var audioLoaded = false;
+
+		    var audioFall;
+		    var audioHit01;
+		    var audioHit02;
+		    var audioHit03;
+		    var audioHit04;
+		    var audioHit05;
+		    var audioHit06;
+		    var audioShot;
+
+		    if (!$.browser.msie) {
+		        audioFall = document.getElementById('Fall');
+		        audioHit01 = document.getElementById('Hit01');
+		        audioHit02 = document.getElementById('Hit02');
+		        audioHit03 = document.getElementById('Hit03');
+		        audioHit04 = document.getElementById('Hit04');
+		        audioHit05 = document.getElementById('Hit05');
+		        audioHit06 = document.getElementById('Hit06');
+		        audioShot = document.getElementById('Shot');
+		    }
+		    else {
+		        audioFall = document.getElementById('Fall_ie');
+		        audioHit01 = document.getElementById('Hit01_ie');
+		        audioHit02 = document.getElementById('Hit02_ie');
+		        audioHit03 = document.getElementById('Hit03_ie');
+		        audioHit04 = document.getElementById('Hit04_ie');
+		        audioHit05 = document.getElementById('Hit05_ie');
+		        audioHit06 = document.getElementById('Hit06_ie');
+		        audioShot = document.getElementById('Shot_ie');
+		    }
+
+		    var browserX = window.screenX;
+		    var browserY = window.screenY;
+		    var balls = [];
+		    var pockets = [];
+		    var cornerBalls = [];
+		    var total = 22;
+		    var currentDrag = null;
+		    var mouseX = 0;
+		    var mouseY = 0;
+		    var lastMouseX = 0;
+		    var lastMouseY = 0;
+		    var strength = 0.7;
+		    var bottomCanvasLeft = $('#bottomCanvas').css('margin-left').replace('px', '');
+		    var bottomCanvasTop = $('#bottomCanvas').css('margin-top').replace('px', '');
+		    var topCanvasLeft = $('#topCanvas').css('margin-left').replace('px', '');
+		    var topCanvasTop = $('#topCanvas').css('margin-top').replace('px', '');
+		    var bottomCanvasWidth = $('#bottomCanvas').width();
+		    var bottomCanvasHeight = $('#bottomCanvas').height();
+		    var topCanvasWidth = $('#topCanvas').width();
+		    var topCanvasHeight = $('#topCanvas').height();
+
+		    var cueCenter = [15, -4];
+		    var cue = new Image;
+		    cue.src = 'Content/Images/cue.PNG';
+
+		    var shadowCue = new Image;
+		    shadowCue.src = 'Content/Images/shadowCue.PNG';
+
+		    var cueDistance = 0;
+		    var cuePulling = true;
+
+		    var NWCorner = {};
+		    NWCorner.x = bottomCanvasLeft - topCanvasLeft;
+		    NWCorner.y = bottomCanvasTop - topCanvasTop;
+
+		    var targetX;
+		    var targetY;
+
+		    var cueBall;
+
+		    bottomCanvas.width = bottomCanvasWidth;
+		    bottomCanvas.height = bottomCanvasHeight;
+
+		    var IE = document.all ? true : false;
+
+		    jQuery(document).ready(function () {
+		        $('#strengthBar').val(strength * 150);
+
+		        //		        if (IE) {
+		        $('#strengthBar').css('display', 'none');
+		        $('#strengthBar-ie_front').css('width', strength * 150);
+		        $('#strengthBar-ie_front').css('height', 14);
+		        //		        }
+
+		        if (!IE) document.addEventListener(Event.MOUSEMOVE, getMouseXY, false);
+		        document.onmousemove = getMouseXY;
+
+		        animateCurrentPlayerImage();
+
+		        $('#topCanvas').click(function (e) {
+		            var x = e.pageX - NWCorner.x - 0;
+		            var y = e.pageY - NWCorner.y - 0;
+
+		            if (x >= 0 && x <= bottomCanvasWidth &&
+                        y >= 0 && y <= bottomCanvasHeight
+		                ) {
+
+		                targetX = x;
+		                targetY = y;
+		                var dX = targetX - cueBall.position.x;
+		                var dY = targetY - cueBall.position.y;
+		                var speed = 30 * strength;
+		                var angle = Math.atan2(dX, dY);
+		                cueBall.velocity = new Vector2D(Math.sin(angle) * speed, Math.cos(angle) * speed);
+		                fallenBallsProcessed = false;
+		                started = true;
+		                isReady = false;
+
+		                if (audioShot != null) {
+		                    audioShot.volume = strength / 100.0;
+		                    audioShot.play();
+		                }
+		            }
+		        });
+
+		        $('#topCanvas').mousemove(function (e) {
+		            var x = e.pageX - NWCorner.x - 0;
+		            var y = e.pageY - NWCorner.y - 0;
+
+		            if (x >= 0 && x <= bottomCanvasWidth &&
+                        y >= 0 && y <= bottomCanvasHeight
+		                ) {
+		                targetX = x;
+		                targetY = y;
+		                var dX = targetX - cueBall.position.x;
+		                var dY = targetY - cueBall.position.y;
+		                var angle = Math.atan2(dX, dY);
+		            }
+		        });
+
+		        $('#strengthBar').click(function (e) {
+		            var left = $('#strengthBar').css('margin-left').replace('px', '');
+		            var x = e.pageX - left;
+		            strength = (x / 150.0);
+		            $('#strengthBar').val(strength * 100);
+		        });
+
+		        $('#strengthBar-ie').click(function (e) {
+		            var left = $('#strengthBar-ie').css('margin-left').replace('px', '');
+		            var x = e.pageX - left;
+		            strength = (x / 150.0);
+
+		            $('#strengthBar-ie_front').css('width', strength * 150);
+		            $('#strengthBar-ie_front').css('height', 14);
+
+		        });
+		    })
+
+		    generate();
+
+		    var player1BallOnCanvas = document.getElementById('player1BallOn');
+		    var player1BallOnContext = player1BallOnCanvas.getContext('2d');
+
+		    var player2BallOnCanvas = document.getElementById('player2BallOn');		    
+            var player2BallOnContext = player2BallOnCanvas.getContext('2d');
+
+            renderBallOn();
+
+		    var drawingtopCanvas = document.getElementById('topCanvas');
+		    if (drawingtopCanvas.getContext) {
+		        var cueContext = drawingtopCanvas.getContext('2d');
+		    }
+
+		    var drawingCanvas = document.getElementById('bottomCanvas');
+		    if (drawingCanvas.getContext) {
+		        var context = drawingCanvas.getContext('2d');
+		        setInterval(render, 10);
+		    }
+
+		    function generate() {
+		        var ballColors = new Array();
+		        var ballLightColors = new Array();
+		        var ballDarkColors = new Array();
+
+		        ballColors.push('#ff0000');
+		        ballColors.push('#ffff00');
+		        ballColors.push('#00ff00');
+		        ballColors.push('#ff8000');
+		        ballColors.push('#0000ff');
+		        ballColors.push('#ffc0c0');
+		        ballColors.push('#808080');
+		        ballColors.push('#ffffff');
+
+		        ballDarkColors.push('#400000');
+		        ballDarkColors.push('#404000');
+		        ballDarkColors.push('#004000');
+		        ballDarkColors.push('#402000');
+		        ballDarkColors.push('#000040');
+		        ballDarkColors.push('#403030');
+		        ballDarkColors.push('#000000');
+		        ballDarkColors.push('#404040');
+
+		        ballLightColors.push('#ffffff');
+		        ballLightColors.push('#ffffff');
+		        ballLightColors.push('#ffffff');
+		        ballLightColors.push('#ffffff');
+		        ballLightColors.push('#ffffff');
+		        ballLightColors.push('#ffffff');
+		        ballLightColors.push('#ffffff');
+		        ballLightColors.push('#ffffff');
+
+		        for (var i = 0; i < total; i++) {
+		            var ball = {};
+
+		            var colorIndex = 0;
+		            if (i > 14)
+		                colorIndex = i - 14;
+
+		            ball.isFixed = false;
+		            ball.color = ballColors[colorIndex];
+		            ball.lightColor = ballLightColors[colorIndex];
+		            ball.darkColor = ballDarkColors[colorIndex];
+		            ball.bounce = 0.5;
+		            ball.velocity = new Vector2D(0, 0);
+		            ball.size = 10;
+		            ball.position = new Vector2D(Math.random() * bottomCanvasWidth, Math.random() * bottomCanvasHeight);
+		            ball.pocketIndex = null;
+
+		            if (i == 21)
+		                ball.Points = 0;
+		            else if (i < 15) {
+		                ball.Points = 1;
+		            }
+		            else
+		                ball.Points = i - 13;
+
+		            ball.initPosition = new Vector2D(0, 0);
+		            ball.Id = i;
+		            balls[balls.length] = ball;
+		        }
+
+		        var cornerBallPositions =
+                [
+                265, 0,
+                313, 0,
+                265, 308,
+                313, 308,
+                48, -30,
+                -30, 48,
+                -30, 260,
+                48, 338,
+                525, 338,
+                525, -30,
+                605, 48,
+                605, 260
+                ];
+
+		        var cornerBallSizes =
+                [
+                10,
+                10,
+                10,
+                10,
+                40,
+                40,
+                40,
+                40,
+                40,
+                40,
+                40,
+                40
+                ];
+
+		        for (var i = 0; i < cornerBallPositions.length / 2; i++) {
+		            var cornerBall = {}
+		            cornerBall.isFixed = true;
+		            cornerBall.color = ballColors[7];
+		            cornerBall.lightColor = ballLightColors[7];
+		            cornerBall.darkColor = ballDarkColors[7];
+		            cornerBall.bounce = 0.5;
+		            cornerBall.velocity = new Vector2D(0, 0);
+		            cornerBall.size = cornerBallSizes[i];
+		            cornerBall.position = new Vector2D(cornerBallPositions[i * 2], cornerBallPositions[i * 2 + 1]);
+		            cornerBall.pocketIndex = null;
+		            cornerBalls[cornerBalls.length] = cornerBall;
+		        }
+
+		        initBallPositions();
+
+		        teams[0].BallOn = balls[0];
+		        teams[1].BallOn = balls[0];
+
+		        cueBall = balls[total - 1];
+
+		        var pocket = {};
+		        pocket.position = new Vector2D(5, 5);
+		        pockets[pockets.length] = pocket;
+
+		        pocket = {};
+		        pocket.position = new Vector2D(288, 0);
+		        pockets[pockets.length] = pocket;
+
+		        pocket = {};
+		        pocket.position = new Vector2D(571, 5);
+		        pockets[pockets.length] = pocket;
+
+		        pocket = {};
+		        pocket.position = new Vector2D(5, 299);
+		        pockets[pockets.length] = pocket;
+
+		        pocket = {};
+		        pocket.position = new Vector2D(288, 304);
+		        pockets[pockets.length] = pocket;
+
+		        pocket = {};
+		        pocket.position = new Vector2D(571, 299);
+		        pockets[pockets.length] = pocket;
+		    }
+
+		    function genHex() {
+		        colors = new Array(14)
+		        colors[0] = "0"
+		        colors[1] = "1"
+		        colors[2] = "2"
+		        colors[3] = "3"
+		        colors[4] = "4"
+		        colors[5] = "5"
+		        colors[5] = "6"
+		        colors[6] = "7"
+		        colors[7] = "8"
+		        colors[8] = "9"
+		        colors[9] = "a"
+		        colors[10] = "b"
+		        colors[11] = "c"
+		        colors[12] = "d"
+		        colors[13] = "e"
+		        colors[14] = "f"
+
+		        digit = new Array(5)
+		        color = ""
+		        for (i = 0; i < 6; i++) {
+		            digit[i] = colors[Math.round(Math.random() * 14)]
+		            color = color + digit[i]
+		        }
+
+		        return color;
+		    }
+
+		    function render() {
+
+		        var isChange = (browserX != window.screenX || browserY != window.screenY);
+		        if (isChange) {
+		            var diffX = browserX - window.screenX;
+		            browserX = window.screenX;
+
+		            var diffY = browserY - window.screenY;
+		            browserY = window.screenY;
+		        }
+
+		        pocketCheck();
+
+		        var j = balls.length;
+		        while (--j > -1) {
+		            update(balls[j]);
+		        }
+
+
+		        if (renderStep % 2 == 0) {
+		            draw();
+
+		            enqueuePosition(new Vector2D(cueBall.position.x, cueBall.position.y));
+		        }
+
+		        renderStep++;
+
+		        if (renderStep > 1000)
+		            renderStep = 0;
+
+		        if (!fallenBallsProcessed && started) {
+
+		            var speedSum = 0.0;
+		            j = balls.length;
+		            while (--j > -1) {
+		                speedSum += Math.abs(balls[j].velocity.x + balls[j].velocity.y);
+		            }
+
+		            if (speedSum < 0.01) {
+		                j = balls.length;
+		                while (--j > -1) {
+		                    balls[j].velocity = new Vector2D(0, 0);
+		                }
+
+		                processFallenBalls();
+
+		                isReady = true;
+		            }
+		        }
+
+		        if (cuePulling) {
+		            if (lastMouseX == mouseX ||
+                    lastMouseY == mouseY) {
+		                cueDistance += 1;
+		            }
+		            else {
+		                cuePulling = false;
+		                getMouseXY();
+		            }
+		        }
+		        else {
+		            cueDistance -= 1;
+		        }
+
+		        if (cueDistance > 40) {
+		            cueDistance = 40;
+		            cuePulling = false;
+		        }
+		        else if (cueDistance < 0) {
+		            cueDistance = 0;
+		            cuePulling = true;
+		        }
+
+                if (renderStep % 2 == 0)
+                {
+                    var srotate = "rotate(" + (renderStep * 10 % 360) + "deg)";
+                    $("#roofFan").css({ "-moz-transform": srotate, "-webkit-transform": srotate, msTransform: srotate });
+                }
+		    }
+
+		    function draw() {
+		        context.clearRect(0, 0, bottomCanvasWidth, bottomCanvasHeight);
+		        cueContext.clearRect(0, 0, topCanvasWidth, topCanvasHeight);
+
+		        //drawing the target line
+		        if (isReady) {
+		            var lastPosX = cueBall.position.x;
+		            var lastPosY = cueBall.position.y;
+
+		            //drawing the cue ball tracing line
+		            var arr = tracingQueue.getArray();
+
+		            if (!cueBall.pocketIndex) {
+		                context.strokeStyle = '#888';
+		                context.lineWidth = 4;
+		                context.lineCap = 'round';
+		                context.beginPath();
+
+		                context.dashedLine(cueBall.position.x, cueBall.position.y, targetX, targetY);
+
+		                context.closePath();
+		                context.stroke();
+		            }
+		        }
+		        else {
+		            //drawing the tracing line
+		            var lastPosX = cueBall.position.x;
+		            var lastPosY = cueBall.position.y;
+
+		            var arr = tracingQueue.getArray();
+
+		            if (!cueBall.pocketIndex) {
+		                context.strokeStyle = '#363';
+		                context.lineWidth = 8;
+		                context.lineCap = 'round';
+
+		                context.beginPath();
+		                var i = arr.length;
+		                while (--i > -1) {
+		                    var posX = arr[i].x;
+		                    var posY = arr[i].y;
+		                    context.dashedLine(lastPosX, lastPosY, posX, posY, [10,200,10,20]);
+		                    lastPosX = posX;
+		                    lastPosY = posY;
+		                }
+
+		                context.closePath();
+		                context.stroke();
+		            }
+		        }
+
+		        i = balls.length;
+
+		        //drawing the shadows
+		        while (--i > -1) {
+		            if (balls[i].pocketIndex == null) {
+		                if (isNaN(balls[i].position.x))
+		                    break;
+
+		                var ball = balls[i];
+
+		                drawBallShadow(context, ball);
+		            }
+		        }
+
+		        i = balls.length;
+		        //drawing the balls
+		        while (--i > -1) {
+		            if (balls[i].pocketIndex == null) {
+		                if (isNaN(balls[i].position.x))
+		                    break;
+
+		                var ball = balls[i];
+
+		                drawBall(context, ball);
+		            }
+		        }
+
+		        var dX = targetX - cueBall.position.x;
+		        var dY = targetY - cueBall.position.y;
+		        var h = Math.sqrt(dX * dX + dY * dY);
+		        var angle = -Math.atan2(dX, dY);
+
+		        var shadowRotationAngle = 0;
+		        if (h == 0) {
+		            shadowRotationAngle = 0;
+		        }
+		        else if (dX == 0 && dY == 0) {
+		            shadowRotationAngle = 0;
+		        }
+		        else if (dX > 0 && dY > 0) {
+		            shadowRotationAngle = angle + 0.03 * (angle);
+		        }
+		        else if (dX > 0 && dY < 0) {
+		            shadowRotationAngle = angle - 0.03 * (Math.PI + angle);
+		        }
+		        else if (dX < 0 && dY > 0) {
+		            shadowRotationAngle = angle - 0.03 * (-angle);
+		        }
+		        else {
+		            shadowRotationAngle = angle - 0.03 * (-Math.PI + angle);
+		        }
+
+		        if (isReady) {
+                    //drawing the cue
+		            cueContext.save();
+		            cueContext.translate(cueBall.position.x + 351, cueBall.position.y + 145);
+		            cueContext.rotate(shadowRotationAngle - Math.PI / 2);
+		            cueContext.drawImage(shadowCue, cueCenter[0] + cueDistance, cueCenter[1]);
+		            cueContext.restore();
+
+		            cueContext.save();
+		            cueContext.translate(cueBall.position.x + 351, cueBall.position.y + 140);
+		            cueContext.rotate(angle - Math.PI / 2);
+		            cueContext.drawImage(cue, cueCenter[0] + cueDistance, cueCenter[1]);
+		            cueContext.restore();
+		        }
+
+                var ballOn1 = teams[playingTeamID - 1].ballOn;
+                if (ballOn1 != null) {
+                    var newPos = new Vector2D(0, 0);
+                    drawBall(context, ballOn1, newPos);
+                }
+		    }
+
+		    function drawEllipse(context, centerX, centerY, width, height, lightColor, darkColor) {
+
+		        context.beginPath();
+
+		        context.moveTo(centerX, centerY - height / 2); // A1
+
+		        context.bezierCurveTo(
+                centerX + width / 2, centerY - height / 2, // C1
+                centerX + width / 2, centerY + height / 2, // C2
+                centerX, centerY + height / 2); // A2
+
+		        context.bezierCurveTo(
+                centerX - width / 2, centerY + height / 2, // C3
+                centerX - width / 2, centerY - height / 2, // C4
+                centerX, centerY - height / 2); // A1
+
+		        var gradient = context.createRadialGradient(
+                    centerX - width / 2,
+                    centerY - height / 2,
+                    0,
+                    centerX - width / 2,
+                    centerY - height / 2,
+                    width
+                    );
+
+		        gradient.addColorStop(0, lightColor);
+		        gradient.addColorStop(1, darkColor);
+		        context.fillStyle = gradient;
+
+		        context.fill();
+		        context.closePath();
+		    }
+
+		    function update(ball) {
+		        if (ball.pocketIndex != null)
+		            return;
+
+		        collisionCheck();
+
+		        var gravity = 0;
+		        var drag = 0.98;
+
+		        ball.position.x += ball.velocity.x;
+		        ball.position.y += ball.velocity.y;
+
+		        if (
+                    (ball.position.y - ball.size) < 12 &&
+                    ball.position.x >= 40 && ball.position.x <= 265
+                ) {
+		            ball.position.y = 12 + ball.size;
+		            ball.velocity.y = -ball.velocity.y * ball.bounce;
+		        }
+		        else if (
+                    (ball.position.y - ball.size) < 12 &&
+                    ball.position.x >= 313 && ball.position.x <= 533
+                ) {
+		            ball.position.y = 12 + ball.size;
+		            ball.velocity.y = -ball.velocity.y * ball.bounce;
+		        }
+
+		        if ((ball.position.y + ball.size) > (bottomCanvasHeight - 12) &&
+                    ball.position.x >= 40 && ball.position.x <= 265) {
+		            ball.position.y = (bottomCanvasHeight - 12) - ball.size;
+		            ball.velocity.y = -ball.velocity.y * ball.bounce;
+		        }
+		        else if ((ball.position.y + ball.size) > (bottomCanvasHeight - 12) &&
+                    ball.position.x >= 313 && ball.position.x <= 533) {
+		            ball.position.y = (bottomCanvasHeight - 12) - ball.size;
+		            ball.velocity.y = -ball.velocity.y * ball.bounce;
+		        }
+
+		        if ((ball.position.x - ball.size) < 11 &&
+                    ball.position.y >= 45 && ball.position.y <= 268) {
+		            ball.position.x = 11 + ball.size;
+		            ball.velocity.x = -ball.velocity.x * ball.bounce;
+		        }
+		        else if ((ball.position.x - ball.size) > 555 &&
+                    ball.position.y >= 45 && ball.position.y <= 268) {
+		            ball.position.x = 565 - ball.size;
+		            ball.velocity.x = -ball.velocity.x * ball.bounce;
+		        }
+
+		        if ((ball.position.x + ball.size) > bottomCanvasWidth) {
+		            ball.position.x = bottomCanvasWidth - ball.size;
+		            ball.velocity.x = -ball.velocity.x * ball.bounce;
+		        }
+		        else if ((ball.position.x - ball.size) < 0) {
+		            ball.position.x = 0 + ball.size;
+		            ball.velocity.x = -ball.velocity.x * ball.bounce;
+		        }
+
+		        if ((ball.position.y + ball.size) > bottomCanvasHeight) {
+		            ball.position.y = bottomCanvasHeight - ball.size;
+		            ball.velocity.y = -ball.velocity.y * ball.bounce;
+		        }
+		        else if ((ball.position.y - ball.size) < 0) {
+		            ball.position.y = 0 + ball.size;
+		            ball.velocity.y = -ball.velocity.y * ball.bounce;
+		        }
+
+		        ball.velocity.x = ball.velocity.x * drag;
+		        ball.velocity.y = ball.velocity.y * drag + gravity;
+		    }
+
+		    function pocketCheck() {
+		        for (var ballIndex = 0; ballIndex < balls.length; ballIndex++) {
+
+		            var ball = balls[ballIndex];
+
+		            for (var pocketIndex = 0; pocketIndex < pockets.length; pocketIndex++) {
+		                var pocket = pockets[pocketIndex];
+		                var xd = (pocket.position.x - ball.position.x);
+		                var yd = (pocket.position.y - ball.position.y);
+
+		                var sumRadius = ((ball.size / 2) * 3.5);
+		                var sqrRadius = sumRadius * sumRadius;
+
+		                var distSqr = (xd * xd) + (yd * yd);
+
+		                if (Math.round(distSqr) < Math.round(sqrRadius)) {
+		                    if (ball.pocketIndex == null) {
+		                        ball.velocity = new Vector2D(0, 0);
+
+		                        ball.position.x = 100;
+		                        ball.position.y = 100;
+
+		                        ball.pocketIndex = pocketIndex;
+
+		                        pottedBalls[pottedBalls.length] = ball;
+
+		                        if (audioFall != null) {
+		                            audioFall.play();		                            
+		                        }
+
+		                    }
+		                    else {
+		                        alert('!!!');
+		                    }
+		                }
+		            }
+		        }
+		    }
+
+		    function collisionCheck() {
+		        var collided = false;
+		        var spring = 1.0;
+
+		        for (var i = 0; i < (total); ++i) {
+		            var ball0 = balls[i];
+
+		            for (var k = 0; k < (cornerBalls.length); k++) {
+		                var cornerBall = cornerBalls[k];
+
+		                while (true) {
+		                    var someCollision = isColliding(cornerBall, ball0);
+		                    if (someCollision) {
+		                        resolveCollision(cornerBall, ball0);
+		                    }
+		                    else
+		                        break;
+		                }
+		            }
+
+		            for (var j = i + 1; j < total; ++j) {
+		                var ball1 = balls[j];
+
+		                while (true) {
+		                    var someCollision = isColliding(ball0, ball1);
+		                    if (someCollision)
+		                        resolveCollision(ball0, ball1);
+		                    else
+		                        break;
+		                }
+
+		            }
+
+		        }
+
+
+		        return collided;
+		    }
+
+		    function isColliding(ball1, ball2) {
+		        if (ball1.pocketIndex == null && ball2.pocketIndex == null) {
+		            var xd = (ball1.position.x - ball2.position.x);
+		            var yd = (ball1.position.y - ball2.position.y);
+
+		            var sumRadius = ball1.size + ball2.size;
+		            var sqrRadius = sumRadius * sumRadius;
+
+		            var distSqr = (xd * xd) + (yd * yd);
+
+		            if (Math.round(distSqr) <= Math.round(sqrRadius)) {
+
+		                if (ball1.Points == 0) {
+		                    strokenBalls[strokenBalls.length] = ball2;
+		                }
+		                else if (ball2.Points == 0) {
+		                    strokenBalls[strokenBalls.length] = ball1;
+		                }
+		                return true;
+		            }
+		        }
+		        return false;
+		    }
+
+		    function resolveCollision(ball1, ball2) {
+		        // get the mtd (minimum translation distance)
+		        var delta = ball1.position.subtract(ball2.position);
+		        var r = ball1.size + ball2.size;
+		        var dist2 = delta.dot(delta);
+
+		        var d = delta.length();
+
+		        var mtd = delta.multiply(((ball1.size + ball2.size + 0.1) - d) / d);
+
+		        // resolve intersection --
+		        // inverse mass quantities
+
+		        var mass = 0.5;
+
+		        var im1 = 1.0 / mass;
+		        var im2 = 1.0 / mass;
+
+		        // push-pull them apart based off their mass
+		        if (!ball1.isFixed)
+		            ball1.position = ball1.position.add((mtd.multiply(im1 / (im1 + im2))));
+		        if (!ball2.isFixed)
+		            ball2.position = ball2.position.subtract(mtd.multiply(im2 / (im1 + im2)));
+
+		        // impact speed
+		        var v = ball1.velocity.subtract(ball2.velocity);
+		        var vn = v.dot(mtd.normalize());
+
+		        // sphere intersecting but moving away from each other already
+		        //                if (vn > 0)
+		        //                    return;
+
+		        // collision impulse
+		        var i = (-(0.0 + 0.08) * vn) / (im1 + im2);
+		        var impulse = mtd.multiply(0.5);
+
+		        var totalImpulse = Math.abs(impulse.x) + Math.abs(impulse.y);
+
+		        var audioHit;
+		        var volume = 1.0;
+
+		        if (totalImpulse > 5) {
+		        	audioHit = audioHit06;
+		        	volume = totalImpulse / 60.0;
+		        }
+		        else if (totalImpulse > 4) {
+		        	audioHit = audioHit05;
+		        	volume = totalImpulse / 12.0;
+		        }
+		        else if (totalImpulse > 3) {
+		        	audioHit = audioHit04;
+		        	volume = totalImpulse / 8.0;
+		        }
+		        else if (totalImpulse > 2) {
+		        	audioHit = audioHit03;
+		        	volume = totalImpulse / 5.0;
+		        }
+		        else {
+		        	audioHit = audioHit02;
+		        	volume = totalImpulse / 5.0;
+		        }
+
+		        if (audioHit != null) {
+		        	if (volume > 1)
+		        		volume = 1.0;
+
+		        	if (audioHit != null) {
+		                  audioHit.volume = volume;
+		                  audioHit.play();
+		              }
+
+		        }
+
+		        // change in momentum
+		        if (!ball1.isFixed)
+		            ball1.velocity = ball1.velocity.add(impulse.multiply(im1));
+		        if (!ball2.isFixed)
+		            ball2.velocity = ball2.velocity.subtract(impulse.multiply(im2));
+		    }
+
+		    function resolveCornerCollision(cornerBall, ball) {
+		        var cornerPosition = new Vector2D(cornerBall.position.x, cornerBall.position.y);
+		        var ballPosition = new Vector2D(ball.position.x, ball.position.y);
+
+		        // get the mtd
+		        var delta = new Vector2D(cornerBall.position.x - ball.position.x, cornerBall.position.y - ball.position.y);
+		        var d = delta.length();
+
+		        // minimum translation distance to push balls apart after intersecting
+		        var mtd = delta.multiply((cornerBall.size + 1.0 + ball.size + 1.0 - d) / d);
+
+		        // resolve intersection --
+		        // inverse mass quantities
+		        var im1 = 1.0;
+		        var im2 = 1.0;
+
+		        // push-pull them apart based off their mass
+		        //                cornerPosition = cornerPosition.add(mtd.multiply(im1 / (im1 + im2)));
+		        ballPosition = ballPosition.subtract(mtd.multiply(im2 / (im1 + im2)));
+
+		        // impact speed
+		        var v = new Vector2D(cornerBall.velocity.x - ball.velocity.x, cornerBall.velocity.y - ball.velocity.y);
+		        var mtdNormalize = new Vector2D(mtd.x, mtd.y);
+		        mtdNormalize.normalize();
+		        var vn = v.dot(mtdNormalize);
+
+		        // sphere intersecting but moving away from each other already
+		        if (vn > 0.0)
+		            return;
+
+		        var impulse = mtd; // * (1.0);
+
+		        ball.velocity.x = 0;
+		        ball.velocity.y = 0;
+
+		        ball.position.x = ballPosition.x;
+		        ball.position.y = ballPosition.y;
+		    }
+
+
+		    function getMouseXY(e) {
+		        lastMouseX = mouseX;
+		        lastMouseY = mouseY;
+
+//		        if (IE) {
+//		            mouseX = event.clientX + document.body.scrollLeft
+//		            mouseY = event.clientY + document.body.scrollTop
+//		        }
+//		        else {
+		            if (e != null) {
+		                mouseX = e.pageX;
+		                mouseY = e.pageY;
+		            }
+//		        }
+
+		        if (mouseX < 0) { mouseX = 0; }
+		        if (mouseY < 0) { mouseY = 0; }
+
+		        return true;
+		    }
+
+		    function initBallPositions() {
+		        var firstRedX = 190;
+		        var firstRedY = 150;
+		        var redDistance = 12;
+
+		        balls[0].position = new Vector2D(firstRedX, firstRedY);
+
+		        balls[1].position = new Vector2D(firstRedX - redDistance * 1.5, firstRedY - redDistance * 1);
+		        balls[2].position = new Vector2D(firstRedX - redDistance * 1.5, firstRedY + redDistance * 1);
+
+		        balls[3].position = new Vector2D(firstRedX - redDistance * 3, firstRedY - redDistance * 2);
+		        balls[4].position = new Vector2D(firstRedX - redDistance * 3, firstRedY + redDistance * 0);
+		        balls[5].position = new Vector2D(firstRedX - redDistance * 3, firstRedY + redDistance * 2);
+
+		        balls[6].position = new Vector2D(firstRedX - redDistance * 4.5, firstRedY - redDistance * 3);
+		        balls[7].position = new Vector2D(firstRedX - redDistance * 4.5, firstRedY + redDistance * 1);
+		        balls[8].position = new Vector2D(firstRedX - redDistance * 4.5, firstRedY - redDistance * 1);
+		        balls[9].position = new Vector2D(firstRedX - redDistance * 4.5, firstRedY + redDistance * 3);
+
+		        balls[10].position = new Vector2D(firstRedX - redDistance * 6, firstRedY - redDistance * 4);
+		        balls[11].position = new Vector2D(firstRedX - redDistance * 6, firstRedY - redDistance * 2);
+		        balls[12].position = new Vector2D(firstRedX - redDistance * 6, firstRedY + redDistance * 0);
+		        balls[13].position = new Vector2D(firstRedX - redDistance * 6, firstRedY + redDistance * 2);
+		        balls[14].position = new Vector2D(firstRedX - redDistance * 6, firstRedY + redDistance * 4);
+
+		        balls[20].position = new Vector2D(40, 150);
+
+		        balls[19].position = new Vector2D(230, 150);
+
+		        balls[18].position = new Vector2D(288, 150);
+
+		        balls[15].position = new Vector2D(468, 90);
+
+		        balls[17].position = new Vector2D(468, 150);
+
+		        balls[16].position = new Vector2D(468, 210);
+
+		        //		        balls[total - 1].position = new Vector2D(468, 50);
+		        balls[total - 1].position = new Vector2D(490 + Math.random() * 20, 90 + Math.random() * 120);
+
+		        for (var i = 0; i < balls.length; i++) {
+		            var ball = balls[i];
+		            ball.initPosition = new Vector2D(ball.position.x, ball.position.y);
+		        }
+		    }
+
+		    function checkPockets() {
+		        if (cueBall.pocketIndex != null) {
+		            cueBall.pocketIndex = null;
+		            cueBall.position.x = 495 + Math.random() * 20;
+		            cueBall.position.y = 90 + Math.random() * 120;
+		            cueBall.velocity.x = 0;
+		            cueBall.velocity.y = 0;
+		        }
+		    }
+
+		    function processFallenBalls() {
+		        consoleLog('function processFallenBalls()');
+		        $('#gameEvents').append('<br/>Begin shot: Player ' + playingTeamID);
+
+		        fallenBallsProcessed = true;
+		        teams[0].FoulList = [];
+		        teams[1].FoulList = [];
+
+		        var redCount = 0;
+		        var fallenRedCount = 0;
+		        var wonPoints = 0;
+		        var lostPoints = 0;
+		        var someInTable = false;
+
+		        for (var i = 0; i < balls.length; i++) {
+		            var ball = balls[i];
+		            if (ball.pocketIndex != null) {
+
+		                if (ball.Points > 0)
+		                    someInTable = true;
+		            }
+
+		            if (ball.Points == 1) {
+		                redCount++;
+		            }
+		        }
+
+		        $('#gameEvents').append('<br/>Potted balls count: ' + pottedBalls.length);
+
+		        for (var i = 0; i < balls.length; i++) {
+		            var ball = balls[i];
+		            if (ball.Points == 1 && ball.pocketIndex != null) {
+		                fallenRedCount++;
+		            }
+		        }
+
+		        consoleLog('1052');
+		        for (var i = 0; i < pottedBalls.length; i++) {
+		            var ball = pottedBalls[i];
+		            if (ball.Points == 0) {
+		                cueBall.position.x = 470 + Math.random() * 20;
+		                cueBall.position.y = 90 + Math.random() * 120;
+
+		                ball.pocketIndex = null;
+		            }
+		            else if (ball.Points > 1) {
+		                if (fallenRedCount < redCount || teams[playingTeamID - 1].BallOn.Points != ball.Points) {
+		                    for (var points = ball.Points; points > 1; points--) {
+		                        var candidateBall = GetCandidateBall(ball, points);
+
+		                        if (candidateBall != null) {
+		                            ball.position = new Vector2D(candidateBall.initPosition.x, candidateBall.initPosition.y);
+		                            ball.velocity.x = 0;
+		                            ball.velocity.y = 0;
+		                            ball.pocketIndex = null;
+		                            break;
+		                        }
+		                    }
+		                }
+		            }
+		        }
+
+		        if (teams[playingTeamID - 1].BallOn == null) {
+		            teams[playingTeamID - 1].BallOn = balls[0];
+		            renderBallOn();
+		        }
+
+		        consoleLog('1083');
+		        var strokenBallsCount = 0;
+		        consoleLog('strokenBalls.length: ' + strokenBalls.length);
+		        for (var i = 0; i < strokenBalls.length; i++) {
+
+		            var ball = strokenBalls[i];
+		            //causing the cue ball to first hit a ball other than the ball on
+		            if (strokenBallsCount == 0) {
+
+		                if (ball.Points != teams[playingTeamID - 1].BallOn.Points) {
+		                    if (ball.Points == 1 || teams[playingTeamID - 1].BallOn.Points == 1 || fallenRedCount == redCount) {
+
+		                        if (teams[playingTeamID - 1].BallOn.Points < 4) {
+		                            teams[playingTeamID - 1].FoulList[teams[playingTeamID - 1].FoulList.length] = 4;
+		                            $('#gameEvents').append('<br/>Foul 4 points :  Expected ' + teams[playingTeamID - 1].BallOn.Points + ', but hit ' + ball.Points);
+		                        }
+		                        else {
+		                            teams[playingTeamID - 1].FoulList[teams[playingTeamID - 1].FoulList.length] = teams[playingTeamID - 1].BallOn.Points;
+		                            $('#gameEvents').append('<br/>Foul ' + teams[playingTeamID - 1].BallOn.Points + ' points :  Expected ' + teams[playingTeamID - 1].BallOn.Points + ', but hit ' + ball.Points);
+		                        }
+		                        break;
+		                    }
+		                }
+		            }
+
+		            strokenBallsCount++;
+		        }
+
+		        consoleLog('1111');
+		        //Foul: causing the cue ball to miss all object balls
+		        if (strokenBallsCount == 0) {
+		            teams[playingTeamID - 1].FoulList[teams[playingTeamID - 1].FoulList.length] = 4;
+		            $('#gameEvents').append('<br/>Foul 4 points :  causing the cue ball to miss all object balls');
+		        }
+
+		        consoleLog('1118');
+		        for (var i = 0; i < pottedBalls.length; i++) {
+		            var ball = pottedBalls[i];
+		            //causing the cue ball to enter a pocket
+		            if (ball.Points == 0) {
+		                teams[playingTeamID - 1].FoulList[teams[playingTeamID - 1].FoulList.length] = 4;
+		                $('#gameEvents').append('<br/>Foul 4 points :  causing the cue ball to enter a pocket');
+		            }
+		            else {
+
+		                //causing a ball different than the target ball to enter a pocket
+		                if (ball.Points != teams[playingTeamID - 1].BallOn.Points) {
+
+		                    if (ball.Points == 1 || teams[playingTeamID - 1].BallOn.Points == 1 || fallenRedCount == redCount) {
+		                        if (teams[playingTeamID - 1].BallOn.Points < 4) {
+		                            teams[playingTeamID - 1].FoulList[teams[playingTeamID - 1].FoulList.length] = 4;
+		                            $('#gameEvents').append('<br/>Foul 4 points : ' + ball.Points + ' was potted, while ' + teams[playingTeamID - 1].BallOn.Points + ' was expected');
+		                            $('#gameEvents').append('<br/>ball.Points: ' + ball.Points);
+		                            $('#gameEvents').append('<br/>teams[playingTeamID - 1].BallOn.Points: ' + teams[playingTeamID - 1].BallOn.Points);
+		                            $('#gameEvents').append('<br/>fallenRedCount: ' + fallenRedCount);
+		                            $('#gameEvents').append('<br/>redCount: ' + redCount);
+		                        }
+		                        else {
+		                            teams[playingTeamID - 1].FoulList[teams[playingTeamID - 1].FoulList.length] = teams[playingTeamID - 1].BallOn.Points;
+		                            $('#gameEvents').append('<br/>Foul ' + teams[playingTeamID - 1].BallOn.Points + ' points : ' + ball.Points + ' was potted, while ' + teams[playingTeamID - 1].BallOn.Points + ' was expected');
+		                        }
+		                    }
+		                }
+		            }
+		        }
+
+		        consoleLog('1149');
+		        if (teams[playingTeamID - 1].FoulList.length == 0) {
+
+		            for (var i = 0; i < pottedBalls.length; i++) {
+
+		                var ball = pottedBalls[i];
+		                //legally potting reds or colors
+		                wonPoints += ball.Points;
+		                $('#gameEvents').append('<br/> Potted +' + ball.Points + ' points.');
+		            }
+		        }
+		        else {
+		            teams[playingTeamID - 1].FoulList.sort();
+		            lostPoints = teams[playingTeamID - 1].FoulList[teams[playingTeamID - 1].FoulList.length - 1];
+		            $('#gameEvents').append('<br/> Lost ' + lostPoints + ' points.');
+		        }
+
+		        teams[playingTeamID - 1].Points += wonPoints;
+		        teams[awaitingTeamID - 1].Points += lostPoints;
+
+		        consoleLog('1169');
+		        $('#log').html(
+                    'playingTeamID: ' + playingTeamID + '<br/>' +
+                    'ball on points: ' + teams[playingTeamID - 1].BallOn.Points + '<br/>' +
+                    'redCount: ' + redCount + '<br/>' +
+                    'strokenBallsCount: ' + strokenBallsCount + '<br/>' +
+                    'fallenRedCount: ' + fallenRedCount + '<br/>' +
+                    'wonPoints: ' + wonPoints + '<br/>' +
+                    'lostPoints: ' + lostPoints + '<br/>' +
+                    'someInTable: ' + someInTable + '<br/>' +
+                    'pottedBalls: ' + pottedBalls.length + '<br/>' +
+                    'Team 1 Points: ' + teams[0].Points + '<br/>' +
+                    'Team 2 Points: ' + teams[1].Points
+                    );
+
+		        $('#gameEvents').append('<br/> wonPoints: ' + wonPoints + ', lostPoints: ' + lostPoints);
+
+		        $('#gameEvents').append('<br/>End shot: Player ' + playingTeamID);
+
+		        consoleLog('1188');
+		        var swappedPlayers = false;
+		        //check if it's other player's turn
+		        if ((wonPoints == 0 || lostPoints > 0))// && currentGameState != GameState.TestShot)
+		        {
+		            swappedPlayers = true;
+
+		            teams[playingTeamID - 1].BallOn = null;
+		            renderBallOn();
+
+		            if (playingTeamID == 1)
+		                playingTeamID = 2;
+		            else
+		                playingTeamID = 1;
+
+		            if (awaitingTeamID == 1)
+		                awaitingTeamID = 2;
+		            else
+		                awaitingTeamID = 1;
+
+		        }
+
+		        teams[playingTeamID - 1].BallOn = GetNextBallOn(swappedPlayers, teams[playingTeamID - 1].BallOn);
+		        renderBallOn();
+
+		        consoleLog('1213');
+		        checkPockets();
+
+		        strokenBalls = [];
+		        pottedBalls = [];
+
+		        if (teams[0].BallOn == null)
+		            $('#player1Name').html('PLAYER 1');
+		        else
+		            $('#player1Name').html('PLAYER 1');
+
+		        if (teams[1].BallOn == null)
+		            $('#player2Name').html('PLAYER 2');
+		        else
+		            $('#player2Name').html('PLAYER 2');
+
+		        $('#player1Score').html(teams[0].Points);
+		        $('#player2Score').html(teams[1].Points);
+
+		        if (playingTeamID == 1) {
+		            $('#player1Name').css('color', '#ffffff');
+		            $('#player2Name').css('color', '#808080');
+		        } else {
+		            $('#player1Name').css('color', '#808080');
+		            $('#player2Name').css('color', '#ffffff');
+		        }
+
+		        animateCurrentPlayerImage();
+		        consoleLog('1241');
+		    }
+
+		    function GetCandidateBall(ball, points) {
+		        var candidateBall = null;
+		        var fallenBall = ball;
+		        while (candidateBall == null) {
+		            for (var i = 0; i < balls.length; i++) {
+		                var b = balls[i];
+		                if (b.Points == points) // && b.IsBallInPocket)
+		                {
+		                    candidateBall = b;
+		                }
+		            }
+		            if (candidateBall != null) {
+		                for (var j = 0; j < balls.length; j++) {
+		                    var collisionBall = balls[j];
+		                    if (collisionBall.pocketIndex == null) {
+		                        if (collisionBall.Id != candidateBall.Id) {
+		                            var xd = (candidateBall.initPosition.x - collisionBall.position.x);
+		                            var yd = (candidateBall.initPosition.y - collisionBall.position.y);
+
+		                            var sumRadius = (ball.size * 0.5);
+		                            var sqrRadius = sumRadius * sumRadius;
+
+		                            var distSqr = (xd * xd) + (yd * yd);
+
+		                            if (Math.round(distSqr) < Math.round(sqrRadius)) {
+		                                candidateBall = null;
+		                                points--;
+		                                break;
+		                            }
+		                        }
+		                    }
+		                }
+		            }
+		        }
+		        return candidateBall;
+		    }
+
+		    function GetNextBallOn(swappedPlayers, lastBallOn) {
+		        var nextBallOn = null;
+
+		        if (swappedPlayers) {
+		            if (teams[playingTeamID - 1].BallOn == null) {
+
+		                nextBallOn = GetRandomRedBall();
+		            }
+		            else if (teams[playingTeamID - 1].JustSwapped) {
+		                nextBallOn = GetRandomRedBall();
+		            }
+		            else if (teams[playingTeamID - 1].BallOn.Points == 1) {
+		                nextBallOn = GetRandomRedBall();
+		            }
+
+		            if (nextBallOn == null) {
+		                nextBallOn = GetMinColouredball();
+		            }
+		        }
+		        else {
+		            if (lastBallOn.Points == 1) {
+		                nextBallOn = GetMinColouredball();
+		            }
+		            else {
+		                nextBallOn = GetRandomRedBall();
+
+		                if (nextBallOn == null) {
+		                    nextBallOn = GetMinColouredball();
+		                }
+		            }
+
+		            if (nextBallOn == null) {
+		                nextBallOn = GetRandomRedBall();
+		            }
+		        }
+
+		        return nextBallOn;
+		    }
+
+		    function GetRandomRedBall() {
+		        var redBallOn = null;
+
+		        var validRedBalls = [];
+		        for (var i = 0; i < balls.length; i++) {
+
+		            var ball = balls[i];
+		            if (ball.Points == 1 && ball.pocketIndex == null) {
+		                validRedBalls[validRedBalls.length] = i;
+		            }
+		        }
+
+		        var redCount = validRedBalls.length;
+
+		        if (redCount > 0) {
+		            var index = Math.random() * redCount;
+
+		            index = Math.floor(index);
+
+		            redBallOn = balls[validRedBalls[index]];
+		        }
+
+		        return redBallOn;
+		    }
+
+		    function GetMinColouredball() {
+		        var minColouredball = null;
+		        var minPoints = 8;
+		        for (var i = 0; i < balls.length; i++) {
+		            var ball = balls[i];
+		            if (ball.Points > 1 && ball.Points < minPoints && ball.pocketIndex == null) {
+		                minColouredball = ball;
+		                minPoints = minColouredball.Points;
+		            }
+		        }
+		        return minColouredball;
+		    }
+
+		    function animateCurrentPlayerImage() {
+		        var otherPlayerImageId = 0;
+		        if (playingTeamID == 1)
+		            otherPlayerImageId = 'player2Image';
+		        else
+		            otherPlayerImageId = 'player1Image';
+
+		        var playerImageId = 'player' + playingTeamID + 'Image';
+
+		        $('#' + playerImageId).animate({
+		            opacity: 1.0
+		        }, 500, function () {
+		            $('#' + playerImageId).animate({
+		                opacity: 0.0
+		            }, 500, function () {
+		                $('#' + playerImageId).animate({
+		                    opacity: 1.0
+		                }, 500, function () {
+
+		                });
+		            });
+		        });
+
+		        $('#' + otherPlayerImageId).animate({
+		            opacity: 0.25
+		        }, 1500, function () {
+
+		        });
+		    }
+
+		    function drawBall(context, ball, newPosition, newSize) {
+		        var position = ball.position;
+		        var size = ball.size;
+
+                if (newPosition != null)
+                    position = newPosition;
+
+                if (newSize != null)
+                    size = newSize;
+
+		        //main circle
+		        context.beginPath();
+		        context.fillStyle = ball.color;
+		        context.arc(position.x, position.y, size, 0, Math.PI * 2, true);
+
+		        var gradient = context.createRadialGradient(
+                        position.x - size / 2,
+                        position.y - size / 2,
+                        0,
+                        position.x,
+                        position.y,
+                        size
+                        );
+
+		        //bright spot
+		        gradient.addColorStop(0, ball.color);
+		        gradient.addColorStop(1, ball.darkColor);
+		        context.fillStyle = gradient;
+		        context.fill();
+		        context.closePath();
+
+		        context.beginPath();
+		        context.arc(position.x, position.y, size * 0.85, (Math.PI / 180) * 270, (Math.PI / 180) * 200, true);
+		        context.lineTo(ball.x, ball.y);
+		        var gradient = context.createRadialGradient(
+                            position.x - size * .5,
+                            position.y - size * .5,
+                            0,
+                            position.x,
+                            position.y,
+                            size
+                        );
+
+		        gradient.addColorStop(0, ball.lightColor);
+		        gradient.addColorStop(0.5, 'transparent');
+		        context.fillStyle = gradient;
+		        context.fill();
+		    }
+
+		    function drawBallShadow(context, ball) {
+		        //main circle
+		        context.beginPath();
+		        context.arc(ball.position.x + ball.size * .25, ball.position.y + ball.size * .25, ball.size * 2, 0, Math.PI * 2, true);
+
+		        try {
+		            var gradient = context.createRadialGradient(
+                            ball.position.x + ball.size * .25,
+                            ball.position.y + ball.size * .25,
+                            0,
+                            ball.position.x + ball.size * .25,
+                            ball.position.y + ball.size * .25,
+                            ball.size * 1.5
+                            );
+		        }
+		        catch (err) {
+		            alert(err);
+		            alert(ball.position.x + ',' + ball.position.y);
+		        }
+
+		        gradient.addColorStop(0, '#000000');
+		        gradient.addColorStop(1, 'transparent');
+		        context.fillStyle = gradient;
+		        context.fill();
+		        context.closePath();
+		    }
+
+		    function renderBallOn() {
+		        player1BallOnContext.clearRect(0, 0, 500, 500);
+		        player2BallOnContext.clearRect(0, 0, 500, 500);
+		        if (playingTeamID == 1) {
+		            if (teams[0].BallOn != null)
+		                drawBall(player1BallOnContext, teams[0].BallOn, new Vector2D(30, 120), 20);
+		        }
+                else {
+		            if (teams[1].BallOn != null)
+		                drawBall(player2BallOnContext, teams[1].BallOn, new Vector2D(30, 120), 20);
+		            player1BallOnContext.clearRect(0, 0, 133, 70);
+		        }
+		    }
+
+		    function consoleLog(message) {
+		        $('#gameEvents').append(message);
+		    }
+
+		    function enqueuePosition(position) {
+		        tracingQueue.enqueue(position);
+		        var len = tracingQueue.getLength();
+
+		        if (len > 20) {
+		            tracingQueue.dequeue();
+		        }
+		    }
+
+		</script> 
+
+	
+	 
+
+    </audio></audio></audio></audio></audio></audio></audio></audio></body></html>
